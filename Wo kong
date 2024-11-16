@@ -1,0 +1,602 @@
+-- // i got racks now rhxnda
+
+getgenv().Settings = {
+    ["Options"] = {
+        ['Script Key'] = 'Luarmor_Key_Paste_Here',
+        ['Version'] = 'Latest',
+        ['Game'] = 'h', -- Arsenal, DaHood, Kat, Rivals
+        ['Ui'] = false, -- next upd
+        ['Notifications'] = false,  
+        ['Button'] = true, -- for cam enable this and cam
+    },
+    ["Fighting"] = {
+        ['Global'] = true,
+        ['TargetPart'] = 'HumanoidRootPart',
+        ['Keybind'] = 'C',
+        ['AirPart'] = 'HumanoidRootPart', 
+        ['PredictionValue'] = 0.1271,
+        ['AuthenticMode'] = true,
+    },
+    ["Arguments"] = {
+        ['Global'] = {'Mouse', 'UpdateMousePos', 'UpdateMousePosI2', 'MOUSE', 'MousePos','MousePosUpdate'},
+    },
+    ["TriggerBot"] = { -- 'works'
+        ['Global'] = true,
+        ['Prediction'] = '0.131',
+        ['Delay'] = 0.01,
+        ['AutoAir'] = true,
+        ['WhitelistedTools'] = {'[Wallet]', '[Cookie]', '[Knife]'},
+    },
+    ["InventorySort"] = {
+        ['Global'] = false,
+        ['Slot 1'] = '[Revolver]',
+        ['Slot 2'] = '[Double-Barrel]',
+        ['Slot 3'] = '[Tactical-Shotgun]',
+        ['Slot 4'] = '[Knife]',
+        ['Slot 5'] = '[Pizza]',
+        ['Slot 6'] = '[Chicke]',
+        ['Slot 7'] = '[Chicken]',
+        ['Slot 8'] = '',
+        ['Slot 9'] = '',
+        ['Slot 0'] = '[Katana]',
+    },
+    ["Whitelist"] = {
+       ['Global'] = true,
+       ['Players'] = {'27k_GAMING', 'nigga2', 'nigga3'},
+    },
+    ["Optical_Navigation"] = {
+        ['Global'] = true,
+        ['HitPart'] = "HumanoidRootPart",
+        ['RHitPart'] = "HumanoidRootPart",
+        ['UseAirPart'] = false,
+        ['AirPart'] = "Head",
+        ['Smoothness'] = 0.03,
+        ['Prediction'] = 0.1,
+        ['Style'] = "Quad",
+        ['ShakeValue'] = 0,
+        ['Direction'] = "InOut",
+        ['ZoomLevel'] = 1.5,
+        ['AutoRotate'] = true,
+        ['FollowTarget'] = true,
+    },
+    ["Textures"] = {
+        ['Global'] = false,
+        ['Map'] = {'Grass', 'SkyBox', 'Concrete'},
+    },
+    ["FieldOfView"] = {
+        ['Gradient'] = {
+            ['Colors'] = {Color3.fromRGB(255, 255, 255), Color3.fromRGB(0, 0, 67)},
+        },
+        ['Stroke'] = {
+            ['Thickness'] = '1.3',
+        },
+        ['Options'] = {
+            ['Dotted_FOV'] = false,
+            ['GAY_FOV'] = false,
+        },
+        ['Visible'] = true,
+        ['Positioning'] = 'Center',
+        ['Radius'] = 120,
+        ['Filled'] = false,
+    },
+    ["Kat"] = {
+        ['Global'] = false,
+        ['TargetPart'] = 'HumanoidRootPart',
+        ['PredictionValue'] = 0.1271,
+    },
+    ["Arsenal"] = {
+        ['Global'] = false,
+        ['TargetPart'] = 'HumanoidRootPart',
+    },
+    ["Rivals"] = {
+        ['Global'] = true,
+        ['TargetPart'] = 'HumanoidRootPart',
+        ['PredictionValue'] = 0.1271,
+        ['AuthenticMode'] = true,
+    },
+    ["Filters"] = { -- no work
+        ['WallDetection'] = true,
+        ['CrewValidation'] = false,
+        ['AllyFilter'] = true,
+        ['DownedFilter'] = true,
+    },
+    ["Utility"] = { -- no work
+        ['Global'] = true,
+        ['EmojiType'] = false,
+        ['Stars'] = {'27k_GAMING','YOUR_STAR_HERE'}, -- dont change 27k_GAMING or Script will break 
+        ['DownedFilter'] = true,
+    },
+    ["Miscellaneous"] = { -- no work
+        ['GroundShotPrevention'] = true,
+        ['DynamicPrediction'] = true,
+        ['WaterMark'] = false,
+        ['AutoRotate'] = true,
+    },
+}
+
+script_key= getgenv().Settings.Options['Script Key']
+
+if getgenv().Settings.InventorySort.Global then
+    local order = {
+        "[Double-Barrel SG]", "[Revolver]", "[Cookie]", 
+        "[Chicken]", "[Chicken]", "[Pizza]", 
+        "[Pizza]", "", "", "[Katana]"
+    }
+    
+    local backpack = game:GetService("Players").LocalPlayer.Backpack
+
+    for i = 1, #order do
+        local toolName = order[i]
+        local tool = backpack:FindFirstChild(toolName)
+        if tool and tool:IsA("Tool") then
+            tool.Parent = nil
+            tool.Parent = backpack
+        end
+    end
+end
+
+local UserInputService = game:GetService("UserInputService")
+
+local function sortInventory()
+    if not getgenv().Settings.InventorySort.Global then
+        return
+    end
+
+    local player = game:GetService("Players").LocalPlayer
+    local backpack = player:FindFirstChildOfClass("Backpack")
+    if not backpack then
+        return
+    end
+
+    local originalItems = {}
+    for _, tool in pairs(backpack:GetChildren()) do
+        table.insert(originalItems, tool)
+    end
+
+    for _, tool in pairs(backpack:GetChildren()) do
+        tool.Parent = nil
+    end
+
+    for i = 1, 10 do
+        local slot = 'Slot ' .. tostring(i % 10) 
+        local desiredItemName = getgenv().Settings.InventorySort[slot]
+        if desiredItemName and desiredItemName ~= "" then
+            for index, tool in ipairs(originalItems) do
+                if tool.Name == desiredItemName then
+                    tool.Parent = backpack
+                    table.remove(originalItems, index)
+                    break
+                end
+            end
+        end
+    end
+
+    for _, tool in pairs(originalItems) do
+        tool.Parent = backpack
+    end
+end
+
+if getgenv().Settings.InventorySort.Global then
+sortInventory()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local gradient = Instance.new("UIGradient")
+local UICorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+local ballsarelife = Color3.fromRGB(255, 255, 255)
+
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local sama_sama_sama = getgenv().Settings.FieldOfView.Visible
+local whattheskibidi = 1
+local mode = getgenv().Settings.FieldOfView.Positioning
+local coluhhh = getgenv().Settings.FieldOfView.Gradient.Colors[1]
+local coluhhh2 = getgenv().Settings.FieldOfView.Gradient.Colors[2]
+local HuhDrawing = getgenv().Settings.FieldOfView.Radius
+
+Frame.Parent = ScreenGui
+Frame.Visible = sama_sama_sama
+Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame.BackgroundTransparency = whattheskibidi
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
+
+UICorner.CornerRadius = UDim.new(1, 0)
+UICorner.Parent = Frame
+
+UIStroke.Thickness = getgenv().Settings.FieldOfView.Stroke.Thickness
+UIStroke.Color = ballsarelife
+UIStroke.Parent = Frame
+
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, coluhhh),
+    ColorSequenceKeypoint.new(1, coluhhh2)
+}
+gradient.Parent = Frame
+
+local function UpdateStrokeColor()
+    local color1 = gradient.Color.Keypoints[1].Value
+    UIStroke.Color = Color3.new(color1.R, color1.G, color1.B)
+end
+
+if getgenv().Settings.FieldOfView.Filled then 
+    Frame.Transparency = "0.6"
+
+else
+
+Frame.Transparency = "1"
+
+end
+
+
+local camera = workspace.CurrentCamera
+local viewportSize = camera.ViewportSize
+
+local function ChangeFOVFrickinSizees(HuhDrawing)
+    Frame.Size = UDim2.new(0, HuhDrawing, 0, HuhDrawing)
+    Frame.Position = UDim2.new(0.5, -HuhDrawing / 2, 0.5, -HuhDrawing / 2)
+end;
+
+ChangeFOVFrickinSizees(200)
+
+local player = game:GetService("Players").LocalPlayer
+local mouse = player:GetMouse()
+
+mouse.Move:Connect(function()
+    if mouse and mode == "Mouse" then
+        Frame.Position = UDim2.new(0, mouse.X - Frame.Size.X.Offset / 2, 0, mouse.Y - Frame.Size.Y.Offset / 2)
+    else
+        Frame.Position = UDim2.new(0.5, -Frame.Size.X.Offset / 2, 0.5, -Frame.Size.Y.Offset / 2)
+    end
+end);
+
+local RotateThisDick = 4
+
+spawn(function()
+    while true do
+        gradient.Rotation = gradient.Rotation + RotateThisDick
+        UpdateStrokeColor()
+        wait(0.01)
+    end;
+end);
+
+
+local function findClosestPlayer()
+    local players = game:GetService("Players")
+    local localPlayer = players.LocalPlayer
+    local closestPlayer
+    local closestDistance = math.huge
+    local camera = workspace.CurrentCamera
+
+    for _, player in ipairs(players:GetPlayers()) do
+        if player ~= localPlayer and player.Character and player.Character:FindFirstChild(getgenv().Settings.Fighting.TargetPart) then
+            if getgenv().Settings.Whitelist.Global and table.find(getgenv().Settings.Whitelist.Players, player.Name) then
+                continue
+            end
+
+            local part = player.Character[getgenv().Settings.Fighting.TargetPart]
+            local screenPos, onScreen = camera:WorldToViewportPoint(part.Position)
+
+            if onScreen then
+                local distanceToCenter = (Vector2.new(Frame.AbsolutePosition.X + Frame.AbsoluteSize.X / 2, Frame.AbsolutePosition.Y + Frame.AbsoluteSize.Y / 2) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+
+                if distanceToCenter < closestDistance and distanceToCenter <= getgenv().Settings.FieldOfView.Radius then
+                    closestPlayer = player
+                    closestDistance = distanceToCenter
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end;
+
+
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = nil
+
+if getgenv().Settings.Options.Button then
+screenGui.Parent = game:GetService("CoreGui")
+end
+
+local imageButton = Instance.new("ImageButton")
+imageButton.Size = UDim2.new(0, 100, 0, 100)
+imageButton.Position = UDim2.new(0, 5, 0, 5)
+imageButton.Image = "rbxassetid://109584016186447"
+imageButton.BackgroundTransparency = 1
+imageButton.Parent = screenGui
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    imageButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+imageButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = imageButton.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+imageButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input == dragInput then
+        update(input)
+    end
+end)
+
+local Camera = game.Workspace.CurrentCamera
+local targetcam
+local CamENABLED = getgenv().Settings["Optical_Navigation"].Global
+local horizontalsmooth = getgenv().Settings["Optical_Navigation"].Smoothness
+local ShakeX = getgenv().Settings["Optical_Navigation"].ShakeValue
+local TweenService = game:GetService("TweenService")
+local SkibidiAmount = getgenv().Settings["Optical_Navigation"].Prediction
+
+imageButton.MouseButton1Click:Connect(function()
+    if CamENABLED then
+        CamENABLED = false
+        if getgenv().Settings.Options.Notifications then
+            targetcam = nil
+            StarterGui:SetCore("SendNotification", {
+                Title = "Subway.Hook",
+                Text = "Unlocked"
+            })
+        end
+    else
+        CamENABLED = true
+        targetcam = findClosestPlayer()
+        if getgenv().Settings.Options.Notifications then
+            StarterGui:SetCore("SendNotification", {
+                Title = "Subway.Hook",
+                Text = "Locked on target"
+            })
+        end;
+    end;
+end);
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode[getgenv().Settings.Fighting.Keybind] then
+        if CamENABLED then
+            CamENABLED = false
+            targetcam = nil
+            if getgenv().Settings.Options.Notifications then
+                StarterGui:SetCore("SendNotification", {
+                    Title = "Subway.Hook",
+                    Text = "Unlocked"
+                })
+            end
+        else
+            CamENABLED = true
+            targetcam = findClosestPlayer()
+            if getgenv().Settings.Options.Notifications then
+                StarterGui:SetCore("SendNotification", {
+                    Title = "Subway.Hook",
+                    Text = "Locked on target"
+                })
+            end
+        end
+    end;
+end);
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if CamENABLED and getgenv().Settings.Fighting.Global and targetcam then
+        local targetCharacter = targetcam.Character
+        if targetCharacter then
+            local humanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                local aimPart = getgenv().Settings.Fighting.TargetPart
+                local CamPart = getgenv().Settings["Optical_Navigation"].HitPart
+                local velocity = humanoidRootPart.Velocity
+                local targetPosition = targetCharacter[CamPart].Position + (velocity * SkibidiAmount)
+
+                local smoothTweenInfo = TweenInfo.new(horizontalsmooth, Enum.EasingStyle[getgenv().Settings["Optical_Navigation"].Style], Enum.EasingDirection[getgenv().Settings["Optical_Navigation"].Direction])
+                local tween = TweenService:Create(Camera, smoothTweenInfo, {CFrame = CFrame.new(Camera.CFrame.Position, targetPosition)})
+                tween:Play()
+
+                Camera.CFrame = Camera.CFrame * CFrame.Angles(math.random(-ShakeX, ShakeX) * 0.01, math.random(-ShakeX, ShakeX) * 0.01, 0)
+            end
+        end;
+    end
+end);
+
+
+
+
+local lookat = getgenv().Settings.Miscellaneous.AutoRotate
+
+local function LookAtPlayer(Target)
+    local localChar = game:GetService("Players").LocalPlayer.Character or game:GetService("Players").LocalPlayer.CharacterAdded:Wait()
+    local localHumanoidRootPart = localChar:FindFirstChild("HumanoidRootPart")
+
+    if localHumanoidRootPart then
+        if lookat and Target and Target.Character and Target.Character:FindFirstChild("HumanoidRootPart") then
+            local targetHumanoidRootPart = Target.Character.HumanoidRootPart
+            local targetPosition = targetHumanoidRootPart.Position
+            local localPosition = localHumanoidRootPart.Position
+            local horizontalDirection = Vector3.new(targetPosition.X - localPosition.X, 0, targetPosition.Z - localPosition.Z).unit
+            
+            localHumanoidRootPart.CFrame = CFrame.new(localPosition, localPosition + horizontalDirection)
+            localChar.Humanoid.AutoRotate = false
+        else
+            localChar.Humanoid.AutoRotate = true
+        end;
+    end
+end;
+
+local target = nil
+local camera = game.Workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+
+RunService.RenderStepped:Connect(function()
+local localChar = game:GetService("Players").LocalPlayer.Character
+    target = findClosestPlayer()
+    if lookat and target then
+        LookAtPlayer(target)  
+   else
+       if not target then localChar.Humanoid.AutoRotate = 
+true
+     end;
+   end
+end);
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = nil
+
+if getgenv().Settings.Miscellaneous.WaterMark then
+screenGui.Parent = game:GetService("CoreGui")
+end
+
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local creatorName = game.CreatorId and game:GetService("MarketplaceService"):GetProductInfo(game.CreatorId).Creator.Name or "Unknown"
+
+local textLabel = Instance.new("TextLabel")
+textLabel.Parent = screenGui
+textLabel.Position = UDim2.new(0, 20, 0, 10)
+textLabel.Size = UDim2.new(0, 250, 0, 100)
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.TextStrokeTransparency = 0
+textLabel.TextSize = 20
+textLabel.BackgroundTransparency = 1
+textLabel.Font = Enum.Font.SourceSans
+
+local function updateTextLabel()
+    local baseText = "Subway.Hook\nGame: " .. gameName .. "\nHitPart: " .. getgenv().Settings.Fighting.TargetPart
+    local additionalText = ""
+
+    if target then
+        textLabel.Text = "Subway.Hook\nGame: " .. gameName .. "\nTarget: " .. target.Name .. "\nHitPart: " .. getgenv().Settings.Fighting.TargetPart
+        
+        if getgenv().Settings.TriggerBot.Global and target then
+            additionalText = additionalText .. "\nTriggerBot: On"
+        end
+        
+        if getgenv().Settings.TriggerBot.AutoAir and not lookat and target then
+            additionalText = additionalText .. "\nAutoAir: On"
+else
+            additionalText = additionalText .. "\nAutoAir: off"
+        end
+        
+        if getgenv().Settings.Miscellaneous.AutoRotate and target then
+            additionalText = additionalText .. "\nLookAt: On"
+  else
+            additionalText = additionalText .. "\nLookAt: off"
+        end
+    else
+        textLabel.Text = baseText .. "\nNo Target"
+
+        if getgenv().Settings.TriggerBot.Global and not target then
+            additionalText = additionalText .. "\nTriggerBot: On"
+        else
+            additionalText = additionalText .. "\nTriggerBot: Off"
+        end
+
+        if getgenv().Settings.TriggerBot.AutoAir and not target then
+            additionalText = additionalText .. "\nAutoAir: On"
+        end
+
+        if getgenv().Settings.Miscellaneous.AutoRotate and not target then
+            additionalText = additionalText .. "\nLookAt: On"
+        end
+    end
+
+    if getgenv().Settings.TriggerBot.AutoAir and not getgenv().Settings.Optical_Navigation.AutoRotate then
+        additionalText = additionalText:gsub("\nLookAt: On", "")
+    end
+
+    if additionalText ~= "" then
+        textLabel.Text = textLabel.Text .. additionalText
+    end
+end
+
+
+
+local autoair = getgenv().Settings.TriggerBot.AutoAir
+
+local players = game:GetService("Players")
+local client = players.LocalPlayer
+
+local function isToolWhitelisted(tool)
+    if getgenv().Settings.TriggerBot.WhitelistedTools then
+        for _, whitelistedTool in ipairs(getgenv().Settings.TriggerBot.WhitelistedTools) do
+            if tool.Name == whitelistedTool then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function AutoShoot()
+    if target then
+local client = players.LocalPlayer
+        local character = client.Character
+        if character then
+            local tool = character:FindFirstChildOfClass("Tool")
+            if tool and tool:IsA("Tool") and not isToolWhitelisted(tool) then
+                tool:Activate()
+            end
+        end
+    end
+end
+
+
+local targetSigm99928 = getgenv().Settings.TriggerBot.Delay
+local targetSigmaPOBALLs = nil
+local Shot2ing = false
+
+local function checkTarget()
+    if target and target.Character then
+        local humanoid = target.Character:FindFirstChildOfClass("Humanoid")
+        local humanoidRootPart = target.Character:FindFirstChild("HumanoidRootPart")
+
+        if humanoid and humanoidRootPart then
+            local SigmaAir = humanoid:GetState() == Enum.HumanoidStateType.Freefall
+
+            if SigmaAir and autoair then
+                if not targetSigmaPOBALLs then
+                    targetSigmaPOBALLs = tick()
+                else
+                    local airDuration = tick() - targetSigmaPOBALLs
+                    if airDuration >= targetSigm99928 then
+                        if not Shot2ing then
+                            Shot2ing = true
+                            while target and target.Character and SigmaAir do
+                                AutoShoot()
+                                wait(0.001)
+
+                                SigmaAir = humanoid:GetState() == Enum.HumanoidStateType.Freefall
+
+                                if not SigmaAir then
+                                    Shot2ing = false
+                                    targetSigmaPOBALLs = nil -- Reset the start time
+                                    break
+                                end
+                            end
+                        
